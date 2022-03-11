@@ -7,19 +7,28 @@ import pandas as pd
 import scanpy as sc
 import seaborn as sns; sns.set(color_codes=True)
 import scimap as sm
+print("Imports completed")
 
 #os.chdir ("/home/josenimo/DVP")
-
+print("Transforming MCMICRO csv to adata object..")
 adata = sm.pp.mcmicro_to_scimap ("TMA_01_data/unmicst-TMA_01_Core_01_cell.csv")
+print("Ranked expression data")
+sc.pl.highest_expr_genes(adata, n_top=20, save=True)
 
-sc.pl.highest_expr_genes(adata, n_top=20)
-
+print("Creating neighborhood graph")
 sc.pp.neighbors(adata, n_neighbors=30, n_pcs=10)
-
+print("Creating UMAP")
 sc.tl.umap(adata)
-sc.tl.leiden(adata, resolution = 1)
-sc.pl.umap(adata, color='leiden')
+print("Creating Leiden Categorization, res=0.3")
+sc.tl.leiden(adata, resolution = 0.3)
 
-sc.set_figure_params(dpi=500, color_map = 'viridis_r', figsize=(6,6))
-sc.pl.scatter(adata, x='X_centroid', y='Y_centroid', color='leiden')
+sc.set_figure_params(scanpy=True, dpi=200, dpi_save=500, frameon=True, 
+                                vector_friendly=True, fontsize=14, figsize=(6,6), 
+                                color_map='viridis_r', format='pdf', facecolor=None, 
+                                transparent=False, ipython_format='png2x')
 
+print("Plotting UMAP, coloured with Leiden categorization")
+sc.pl.umap(adata, color='leiden', save=True)
+print("Plotting centroid data in scatterplot, coloured with leiden categorization ")
+sc.pl.scatter(adata, x='X_centroid', y='Y_centroid', color='leiden', save=True)
+print("done")
